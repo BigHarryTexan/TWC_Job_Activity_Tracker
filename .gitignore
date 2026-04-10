@@ -1,0 +1,21 @@
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Editor folders
+.vscode/
+.idea/
+
+# Python cache (if you test scripts locally)
+__pycache__/
+*.pyc
+
+# Node modules (if you experiment with JS tooling later)
+node_modules/
+
+# Logs
+*.log
+
+# Environment files (never commit secrets)
+.env
+.env.*
