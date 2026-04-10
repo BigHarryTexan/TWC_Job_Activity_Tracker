@@ -1,1 +1,54 @@
+name: Append work search entry
+
+on:
+  repository_dispatch:
+    types: [add_work_search_entry]
+
+jobs:
+  append:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Parse incoming payload
+        id: parse
+        run: |
+          echo '${{ toJson(github.event.client_payload) }}' > payload.json
+          cat payload.json
+
+      - name: Extract fields
+        id: fields
+        run: |
+          ts=$(jq -r '.timestamp' payload.json)
+          date=$(jq -r '.date' payload.json)
+          employer=$(jq -r '.employer' payload.json)
+          position=$(jq -r '.position' payload.json)
+          method=$(jq -r '.method' payload.json)
+          notes=$(jq -r '.notes' payload.json)
+
+          echo "ts=$ts" >> $GITHUB_OUTPUT
+          echo "date=$date" >> $GITHUB_OUTPUT
+          echo "employer=$employer" >> $GITHUB_OUTPUT
+          echo "position=$position" >> $GITHUB_OUTPUT
+          echo "method=$method" >> $GITHUB_OUTPUT
+          echo "notes=$notes" >> $GITHUB_OUTPUT
+
+      - name: Append to JSON
+        run: |
+          jq ". + [$(cat payload.json)]" data/work_search.json > data/tmp.json
+          mv data/tmp.json data/work_search.json
+
+      - name: Append to CSV
+        run: |
+          echo "${{ steps.fields.outputs.ts }},${{ steps.fields.outputs.date }},\"${{ steps.fields.outputs.employer }}\",\"${{ steps.fields.outputs.position }}\",\"${{ steps.fields.outputs.method }}\",\"${{ steps.fields.outputs.notes }}\"" >> data/work_search.csv
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add data/work_search.json data/work_search.csv
+          git commit -m "Add work search entry ${{ steps.fields.outputs.ts }}" || echo "No changes to commit"
+          git push
 
