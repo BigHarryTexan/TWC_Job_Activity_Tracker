@@ -1,1 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>TWC Work Search Log</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 0 20px;
+      line-height: 1.5;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    input, select, textarea, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      font-size: 1rem;
+    }
+    button {
+      margin-top: 25px;
+      background: #0078d4;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #005fa3;
+    }
+    .success {
+      color: green;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+    .error {
+      color: red;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>Work Search Entry</h1>
+
+  <form id="entry-form">
+    <label>Date of Activity
+      <input type="date" name="date" required>
+    </label>
+
+    <label>Employer
+      <input type="text" name="employer" required>
+    </label>
+
+    <label>Position
+      <input type="text" name="position" required>
+    </label>
+
+    <label>Method
+      <select name="method" required>
+        <option value="Online Application">Online Application</option>
+        <option value="Email">Email</option>
+        <option value="In Person">In Person</option>
+        <option value="Phone">Phone</option>
+        <option value="Other">Other</option>
+      </select>
+    </label>
+
+    <label>Notes
+      <textarea name="notes" rows="4"></textarea>
+    </label>
+
+    <button type="submit">Save Entry</button>
+
+    <div id="message"></div>
+  </form>
+
+  <script>
+    // TODO: Replace this with your actual Cloudflare Worker URL
+    const WORKER_URL = "https://YOUR-WORKER-SUBDOMAIN.workers.dev";
+
+    document.getElementById("entry-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const form = e.target;
+      const data = Object.fromEntries(new FormData(form).entries());
+
+      // Send to Worker as JSON
+      const response = await fetch(WORKER_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      const msg = document.getElementById("message");
+
+      if (response.ok) {
+        msg.textContent = "Entry saved successfully.";
+        msg.className = "success";
+        form.reset();
+      } else {
+        msg.textContent = "Error saving entry.";
+        msg.className = "error";
+      }
+    });
+  </script>
+
+</body>
+</html>
