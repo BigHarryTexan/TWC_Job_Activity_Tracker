@@ -19,13 +19,20 @@ document.getElementById("entry-form").addEventListener("submit", async (e) => {
       body: JSON.stringify(entry)
     });
 
-    if (!response.ok) {
-      throw new Error("Worker returned an error");
-    }
+    const msg = document.getElementById("message");
 
-    alert("Entry saved!");
+    if (response.ok) {
+      msg.textContent = "Entry saved successfully.";
+      msg.className = "success";
+      e.target.reset();
+    } else {
+      msg.textContent = "Error saving entry.";
+      msg.className = "error";
+    }
   } catch (err) {
     console.error(err);
-    alert("Failed to save entry.");
+    const msg = document.getElementById("message");
+    msg.textContent = "Failed to save entry.";
+    msg.className = "error";
   }
 });
