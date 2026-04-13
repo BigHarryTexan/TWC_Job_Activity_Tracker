@@ -1,96 +1,92 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>TWC Work Search Log</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Work Search Activity Tracker</title>
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 600px;
-      margin: 40px auto;
-      padding: 0 20px;
-      line-height: 1.5;
-    }
-    h1 {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: bold;
-    }
-    input, select, textarea, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      font-size: 1rem;
-    }
-    button {
-      margin-top: 25px;
-      background: #0078d4;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #005fa3;
-    }
-    .success {
-      color: green;
-      margin-top: 20px;
-      font-weight: bold;
-    }
-    .error {
-      color: red;
-      margin-top: 20px;
-      font-weight: bold;
-    }
-  </style>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.5;
+        }
+
+        h1, h2 {
+            margin-bottom: 10px;
+        }
+
+        form {
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            margin-top: 12px;
+            font-weight: bold;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 4px;
+            font-size: 14px;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 16px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        #reportStatus {
+            margin-top: 10px;
+            font-style: italic;
+        }
+    </style>
 </head>
 
 <body>
 
-  <h1>Work Search Entry</h1>
+    <h1>Work Search Activity Tracker</h1>
 
-  <form id="entry-form">
-    <label>Date of Activity
-      <input type="date" name="date" id="date" required>
-    </label>
+    <form id="entry-form">
+        <label for="date">Date of Activity</label>
+        <input type="date" id="date" required />
 
-    <label>Employer
-      <input type="text" name="employer" id="employer" required>
-    </label>
+        <label for="employer">Employer</label>
+        <input type="text" id="employer" placeholder="Company name" required />
 
-    <label>Position
-      <input type="text" name="position" id="position" required>
-    </label>
+        <label for="position">Position</label>
+        <input type="text" id="position" placeholder="Job title" required />
 
-    <label>Method
-      <select name="method" id="method" required>
-        <option value="Online Application">Online Application</option>
-        <option value="Email">Email</option>
-        <option value="In Person">In Person</option>
-        <option value="Phone">Phone</option>
-        <option value="Other">Other</option>
-      </select>
-    </label>
+        <label for="method">Method</label>
+        <select id="method" required>
+            <option value="">Select one</option>
+            <option value="Online Application">Online Application</option>
+            <option value="Email">Email</option>
+            <option value="Phone Call">Phone Call</option>
+            <option value="In Person">In Person</option>
+            <option value="Job Fair">Job Fair</option>
+            <option value="Other">Other</option>
+        </select>
 
-    <label>Notes
-      <textarea name="notes" id="notes" rows="4"></textarea>
-    </label>
+        <label for="notes">Notes</label>
+        <textarea id="notes" rows="3" placeholder="Optional notes"></textarea>
 
-    <button type="submit">Save Entry</button>
+        <button type="submit">Submit Entry</button>
+    </form>
 
-    <div id="message"></div>
-  </form>
+    <!-- REPORT BUTTON SECTION -->
+    <h2>Reports</h2>
 
-  <button id="generateReportBtn">Generate Two‑Week Report</button>
-  <div id="reportStatus"></div>
+    <button id="generateReportBtn">Generate Two‑Week Report</button>
+    <div id="reportStatus"></div>
 
-  <!-- Only ONE script now -->
-  <script src="submit-v2.js"></script>
+    <!-- Scripts -->
+    <script src="submit-v2.js"></script>
+    <script src="report.js"></script>
+
 </body>
 </html>
