@@ -33,7 +33,7 @@ document.getElementById("generateReport").addEventListener("click", async () => 
   try {
     // Trigger the Worker
     const response = await fetch(
-      "https://twc-job-worker.bigharrytexan.workers.dev/generate-report",
+      "https://twc-job-worker.clayharryman.workers.dev/generate-report",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" }
