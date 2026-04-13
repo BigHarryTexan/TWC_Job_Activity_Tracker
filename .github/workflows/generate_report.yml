@@ -1,0 +1,36 @@
+name: Generate Two-Week TWC Report
+
+on:
+  schedule:
+    - cron: "0 8 */14 * 1"  # Every second Monday at 08:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-report:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install python-dateutil
+
+      - name: Generate report
+        run: python scripts/generate_report.py
+
+      - name: Commit report
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add reports/*.html
+          git commit -m "Auto-generated TWC report" || echo "No changes"
+          git push
