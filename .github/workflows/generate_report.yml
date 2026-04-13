@@ -4,6 +4,8 @@ on:
   schedule:
     - cron: "0 8 */14 * 1"  # Every second Monday at 08:00 UTC
   workflow_dispatch:
+  repository_dispatch:
+    types: [generate_twoweek_report]
 
 permissions:
   contents: write
