@@ -1,9 +1,11 @@
 import csv
 import json
+import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 
 DATA_CSV = Path("data/work_search.csv")
+REPAIRED_CSV = Path("data/work_search_repaired.csv")
 REPORTS_DIR = Path("reports")
 REPORTS_DIR.mkdir(exist_ok=True)
 
@@ -19,47 +21,60 @@ def most_recent_second_monday(today=None):
     return monday - timedelta(days=7)
 
 # -----------------------------
-# CSV VALIDATOR + SANITIZER
+# CSV VALIDATOR + REPAIR TOOL
 # -----------------------------
-def validate_csv_row(row):
+def validate_and_repair_row(row):
     """Return (True, cleaned_row) or (False, reason)."""
 
-    # Strip whitespace from all fields
     cleaned = {k: (v.strip() if v is not None else "") for k, v in row.items()}
 
-    # Check required fields exist
+    # Ensure all required fields exist
     for field in REQUIRED_FIELDS:
         if field not in cleaned:
-            return False, f"Missing required field '{field}'"
+            cleaned[field] = ""
+            print(f"[REPAIR] Added missing field '{field}' to row:", cleaned)
 
-    # Check date field is valid
+    # Fix empty date
     if not cleaned["date"]:
-        return False, "Empty date field"
+        print("[REPAIR] Empty date field, skipping row:", cleaned)
+        return False, "Empty date"
 
+    # Fix invalid date formats
     try:
         datetime.strptime(cleaned["date"], "%Y-%m-%d")
     except Exception:
-        return False, f"Invalid date format: {cleaned['date']}"
+        print("[REPAIR] Invalid date format, skipping row:", cleaned)
+        return False, "Invalid date"
 
     return True, cleaned
 
-# -----------------------------
-# LOAD + SORT ENTRIES
-# -----------------------------
-def load_entries():
-    entries = []
+def repair_csv():
+    """Reads CSV, repairs rows, writes repaired CSV."""
+    repaired_rows = []
 
     with open(DATA_CSV, newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
 
         for row in reader:
-            ok, result = validate_csv_row(row)
-            if not ok:
-                print("Skipping malformed row:", result, "| Raw row:", row)
-                continue
-            entries.append(result)
+            ok, result = validate_and_repair_row(row)
+            if ok:
+                repaired_rows.append(result)
 
-    # TWC-compliant sorting
+    # Write repaired CSV
+    with open(REPAIRED_CSV, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=REQUIRED_FIELDS)
+        writer.writeheader()
+        writer.writerows(repaired_rows)
+
+    print(f"[REPAIR] Repaired CSV written to {REPAIRED_CSV}")
+    return repaired_rows
+
+# -----------------------------
+# LOAD + SORT ENTRIES
+# -----------------------------
+def load_entries():
+    entries = repair_csv()  # always load repaired version
+
     def parse_date(d):
         return datetime.strptime(d, "%Y-%m-%d")
 
@@ -72,6 +87,27 @@ def load_entries():
     )
 
     return entries
+
+# -----------------------------
+# VIEW LAST TWO WEEKS OF CSV
+# -----------------------------
+def view_last_two_weeks():
+    end_date = datetime.today()
+    start_date = end_date - timedelta(days=13)
+
+    entries = load_entries()
+
+    print("\n=== LAST TWO WEEKS OF CSV ENTRIES ===\n")
+
+    for e in entries:
+        d = datetime.strptime(e["date"], "%Y-%m-%d")
+        if start_date <= d <= end_date:
+            print(
+                f"{e['date']} | {e['employer']} | {e['position']} | "
+                f"{e['method']} | {e['notes']}"
+            )
+
+    print("\n=== END ===\n")
 
 def truncate(text, length=60):
     return text if len(text) <= length else text[:length] + "…"
@@ -100,9 +136,6 @@ body {{
     font-family: Arial, sans-serif;
     margin: 40px;
 }}
-h1 {{
-    margin-bottom: 5px;
-}}
 table {{
     width: 100%;
     border-collapse: collapse;
@@ -111,13 +144,9 @@ table {{
 th, td {{
     border: 1px solid #333;
     padding: 8px;
-    font-size: 14px;
 }}
 th {{
     background: #f0f0f0;
-}}
-.signature {{
-    margin-top: 40px;
 }}
 </style>
 </head>
@@ -137,17 +166,16 @@ th {{
     {rows}
 </table>
 
-<div class="signature">
-    <p><strong>Certification:</strong> I certify that the above work search activities are true and accurate.</p>
-    <p>Signature: ____________________________</p>
-    <p>Date: ________________________________</p>
-</div>
-
 </body>
 </html>
 """
 
 def main():
+    # CLI flag: view last two weeks
+    if "--view" in sys.argv:
+        view_last_two_weeks()
+        return
+
     end_date = most_recent_second_monday()
     start_date = end_date - timedelta(days=13)
 
@@ -155,16 +183,10 @@ def main():
 
     filtered = []
     for e in entries:
-        try:
-            d = datetime.strptime(e["date"], "%Y-%m-%d")
-        except Exception:
-            print("Skipping row with invalid date during filtering:", e)
-            continue
-
+        d = datetime.strptime(e["date"], "%Y-%m-%d")
         if start_date <= d <= end_date:
             filtered.append(e)
 
-    # Safety sort
     filtered.sort(
         key=lambda x: (
             datetime.strptime(x["date"], "%Y-%m-%d"),
@@ -177,7 +199,4 @@ def main():
 
     output_file = REPORTS_DIR / f"twc_report_{end_date.strftime('%Y_%m_%d')}.html"
     output_file.write_text(html, encoding="utf-8")
-    print(f"Report generated: {output_file}")
-
-if __name__ == "__main__":
-    main()
+    print(f"Report generated
