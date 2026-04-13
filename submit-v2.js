@@ -1,5 +1,5 @@
 // force redeploy 1
-const WORKER_URL = "https://twc-job-worker.clayharryman.workers.dev";
+const WORKER_URL = "https://twc-job-worker.clayharryman.workers.dev/submit";
 
 document.getElementById("entry-form").addEventListener("submit", async (e) => {
   e.preventDefault();
