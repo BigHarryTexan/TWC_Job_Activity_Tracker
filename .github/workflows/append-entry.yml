@@ -4,6 +4,9 @@ on:
   repository_dispatch:
     types: [add_work_search_entry]
 
+permissions:
+  contents: write
+
 jobs:
   append:
     runs-on: ubuntu-latest
