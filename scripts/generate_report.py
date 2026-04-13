@@ -19,7 +19,7 @@ def most_recent_second_monday(today=None):
     return monday - timedelta(days=7)
 
 def load_entries():
-    entries = []
+    entries.sort(key=lambda x: x["date"])
     with open(DATA_CSV, newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
