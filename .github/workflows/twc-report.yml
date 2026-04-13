@@ -1,0 +1,93 @@
+name: TWC Work Search Report
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Every second Monday at 9:00 AM
+    - cron: "0 14 1-7,15-21 * 1"
+
+jobs:
+  build-report:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Install Python dependencies
+      run: |
+        pip install requests pandas python-dateutil
+
+    - name: Pull raw CSV from KV
+      env:
+        CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+        CF_NAMESPACE_ID: ${{ secrets.CF_NAMESPACE_ID }}
+        CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      run: |
+        curl -X GET \
+          "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/storage/kv/namespaces/$CF_NAMESPACE_ID/values/raw-csv" \
+          -H "Authorization: Bearer $CF_API_TOKEN" \
+          -o raw.csv
+
+    - name: Pull raw JSON from KV
+      env:
+        CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+        CF_NAMESPACE_ID: ${{ secrets.CF_NAMESPACE_ID }}
+        CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      run: |
+        curl -X GET \
+          "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/storage/kv/namespaces/$CF_NAMESPACE_ID/values/raw-json" \
+          -H "Authorization: Bearer $CF_API_TOKEN" \
+          -o raw.json
+
+    - name: Run repair + merge script
+      run: |
+        python3 scripts/repair_and_merge.py
+
+    - name: Upload repaired CSV to KV
+      env:
+        CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+        CF_NAMESPACE_ID: ${{ secrets.CF_NAMESPACE_ID }}
+        CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      run: |
+        curl -X PUT \
+          "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/storage/kv/namespaces/$CF_NAMESPACE_ID/values/repaired-csv" \
+          -H "Authorization: Bearer $CF_API_TOKEN" \
+          --data-binary @repaired.csv
+
+    - name: Upload repaired JSON to KV
+      env:
+        CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+        CF_NAMESPACE_ID: ${{ secrets.CF_NAMESPACE_ID }}
+        CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      run: |
+        curl -X PUT \
+          "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/storage/kv/namespaces/$CF_NAMESPACE_ID/values/repaired-json" \
+          -H "Authorization: Bearer $CF_API_TOKEN" \
+          --data-binary @repaired.json
+
+    - name: Upload merged-data to KV
+      env:
+        CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+        CF_NAMESPACE_ID: ${{ secrets.CF_NAMESPACE_ID }}
+        CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      run: |
+        curl -X PUT \
+          "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/storage/kv/namespaces/$CF_NAMESPACE_ID/values/merged-data" \
+          -H "Authorization: Bearer $CF_API_TOKEN" \
+          --data-binary @merged.json
+
+    - name: Generate HTML report
+      run: |
+        python3 scripts/generate_report.py
+
+    - name: Commit report
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: "Automated TWC report update"
+        file_pattern: "report.html"
