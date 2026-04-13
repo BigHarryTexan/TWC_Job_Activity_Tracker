@@ -7,26 +7,59 @@ DATA_CSV = Path("data/work_search.csv")
 REPORTS_DIR = Path("reports")
 REPORTS_DIR.mkdir(exist_ok=True)
 
+REQUIRED_FIELDS = ["timestamp", "date", "employer", "position", "method", "notes"]
+
 def most_recent_second_monday(today=None):
     today = today or datetime.today()
-    # Find most recent Monday
     offset = (today.weekday() - 0) % 7
     monday = today - timedelta(days=offset)
-    # If this Monday is an "even" Monday (2nd, 4th), use it; otherwise subtract 7 days
     week_of_month = (monday.day - 1) // 7 + 1
     if week_of_month in (2, 4):
         return monday
     return monday - timedelta(days=7)
 
+# -----------------------------
+# CSV VALIDATOR + SANITIZER
+# -----------------------------
+def validate_csv_row(row):
+    """Return (True, cleaned_row) or (False, reason)."""
+
+    # Strip whitespace from all fields
+    cleaned = {k: (v.strip() if v is not None else "") for k, v in row.items()}
+
+    # Check required fields exist
+    for field in REQUIRED_FIELDS:
+        if field not in cleaned:
+            return False, f"Missing required field '{field}'"
+
+    # Check date field is valid
+    if not cleaned["date"]:
+        return False, "Empty date field"
+
+    try:
+        datetime.strptime(cleaned["date"], "%Y-%m-%d")
+    except Exception:
+        return False, f"Invalid date format: {cleaned['date']}"
+
+    return True, cleaned
+
+# -----------------------------
+# LOAD + SORT ENTRIES
+# -----------------------------
 def load_entries():
     entries = []
 
     with open(DATA_CSV, newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
-        for row in reader:
-            entries.append(row)
 
-    # TWC-compliant sorting: date → employer → method
+        for row in reader:
+            ok, result = validate_csv_row(row)
+            if not ok:
+                print("Skipping malformed row:", result, "| Raw row:", row)
+                continue
+            entries.append(result)
+
+    # TWC-compliant sorting
     def parse_date(d):
         return datetime.strptime(d, "%Y-%m-%d")
 
@@ -120,12 +153,18 @@ def main():
 
     entries = load_entries()
 
-    filtered = [
-        e for e in entries
-        if start_date <= datetime.strptime(e["date"], "%Y-%m-%d") <= end_date
-    ]
+    filtered = []
+    for e in entries:
+        try:
+            d = datetime.strptime(e["date"], "%Y-%m-%d")
+        except Exception:
+            print("Skipping row with invalid date during filtering:", e)
+            continue
 
-    # Optional but recommended: ensure filtered list stays sorted
+        if start_date <= d <= end_date:
+            filtered.append(e)
+
+    # Safety sort
     filtered.sort(
         key=lambda x: (
             datetime.strptime(x["date"], "%Y-%m-%d"),
