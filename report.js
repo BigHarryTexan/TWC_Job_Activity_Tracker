@@ -1,88 +1,49 @@
 document.getElementById("generateReport").addEventListener("click", async () => {
   const status = document.getElementById("reportStatus");
-  status.textContent = "Generating report… this may take a few seconds.";
-  status.style.color = "black";
-
-  // Show spinner
-  const spinner = document.createElement("div");
-  spinner.id = "spinner";
-  spinner.style.marginTop = "10px";
-  spinner.innerHTML = `
-    <div style="
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #3498db;
-      border-radius: 50%;
-      width: 28px;
-      height: 28px;
-      animation: spin 1s linear infinite;
-      margin: auto;
-    "></div>
-  `;
-  status.appendChild(spinner);
-
-  // Add spinner animation
-  const style = document.createElement("style");
-  style.innerHTML = `
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-  `;
-  document.head.appendChild(style);
+  status.textContent = "Generating report...";
 
   try {
-    // Trigger the Worker
-    const response = await fetch(
-      "https://twc-job-worker.clayharryman.workers.dev/generate-report",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" }
-      }
-    );
+    const response = await fetch("https://twc-job-worker.clayharryman.workers.dev/view-raw");
+    const data = await response.json();
 
     if (!response.ok) {
-      throw new Error("Worker returned an error");
+      status.textContent = "Error generating report.";
+      return;
     }
 
-    status.textContent = "Report is generating… waiting for GitHub Pages to deploy.";
-    status.appendChild(spinner);
+    // Build a simple HTML table
+    let html = `<h3>Work Search Report (Last 14 Days)</h3>`;
+    html += `<p>Total entries: ${data.count}</p>`;
+    html += `<table border="1" cellpadding="6" style="border-collapse: collapse;">`;
+    html += `
+      <tr>
+        <th>Date</th>
+        <th>Employer</th>
+        <th>Position</th>
+        <th>Method</th>
+        <th>Notes</th>
+      </tr>
+    `;
 
-    // Build expected report URL
-    const today = new Date();
-    const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, "0");
-    const dd = String(today.getDate()).padStart(2, "0");
+    for (const e of data.entries) {
+      html += `
+        <tr>
+          <td>${e.date}</td>
+          <td>${e.employer}</td>
+          <td>${e.position}</td>
+          <td>${e.method}</td>
+          <td>${e.notes}</td>
+        </tr>
+      `;
+    }
 
-    const reportUrl = `https://bigharrytexan.github.io/TWC_Job_Activity_Tracker/reports/twc_report_${yyyy}_${mm}_${dd}.html`;
+    html += `</table>`;
 
-    // Poll GitHub Pages until the file exists
-    const maxAttempts = 20; // ~20 seconds
-    let attempts = 0;
+    // Replace the status div with the report
+    status.innerHTML = html;
 
-    const poll = setInterval(async () => {
-      attempts++;
-
-      try {
-        const check = await fetch(reportUrl, { method: "GET", cache: "no-store" });
-
-        if (check.ok) {
-          clearInterval(poll);
-          status.textContent = "Report ready! Opening…";
-          window.open(reportUrl, "_blank");
-        }
-      } catch (err) {
-        // Ignore fetch errors during polling
-      }
-
-      if (attempts >= maxAttempts) {
-        clearInterval(poll);
-        status.textContent =
-          "Report generation took too long. Refresh the page and try again.";
-        status.style.color = "red";
-      }
-    }, 1000);
   } catch (err) {
-    status.textContent = "Error generating report.";
-    status.style.color = "red";
+    console.error(err);
+    status.textContent = "Failed to generate report.";
   }
 });
