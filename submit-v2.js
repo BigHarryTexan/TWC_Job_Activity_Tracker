@@ -22,6 +22,8 @@ document.getElementById("entry-form").addEventListener("submit", async (e) => {
 
     const msg = document.getElementById("message");
 
+    <div id="message" class="message"></div>
+
     if (response.ok) {
       msg.textContent = "Entry saved successfully.";
       msg.className = "success";
