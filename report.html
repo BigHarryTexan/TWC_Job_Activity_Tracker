@@ -96,7 +96,7 @@ async function loadReport() {
     const d = new Date(e.date);
 
     // Remove test entries
-    if (e.employer && e.employer.toLowerCase() === "testing") return false;
+    if (e.employer && e.employer.toLowerCase() === "TESTING") return false;
 
     return d >= windowStart && d <= mostRecentMonday;
   });
