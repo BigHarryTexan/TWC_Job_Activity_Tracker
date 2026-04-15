@@ -1,1 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TWC Work Search Report</title>
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 40px;
+    line-height: 1.4;
+  }
+
+  h1 {
+    text-align: center;
+    margin-bottom: 5px;
+  }
+
+  .subheader {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 14px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+
+  th, td {
+    border: 1px solid #000;
+    padding: 8px;
+    font-size: 14px;
+  }
+
+  th {
+    background: #f0f0f0;
+  }
+
+  .cert {
+    margin-top: 40px;
+    font-size: 14px;
+  }
+
+  .sig-line {
+    margin-top: 40px;
+    border-top: 1px solid #000;
+    width: 300px;
+    padding-top: 5px;
+  }
+</style>
+</head>
+
+<body>
+
+<h1>Work Search Log</h1>
+<div class="subheader" id="dateRange"></div>
+
+<table id="reportTable">
+  <tr>
+    <th>Date</th>
+    <th>Employer</th>
+    <th>Position</th>
+    <th>Method</th>
+    <th>Notes</th>
+  </tr>
+</table>
+
+<div class="cert">
+  I certify that the information provided above is true and correct.
+</div>
+
+<div class="sig-line">Signature</div>
+
+<script>
+async function loadReport() {
+  const res = await fetch("https://twc-job-worker.clayharryman.workers.dev/view-raw");
+  const data = await res.json();
+
+  const table = document.getElementById("reportTable");
+
+  // Fill rows
+  data.entries.forEach(e => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${e.date}</td>
+      <td>${e.employer}</td>
+      <td>${e.position}</td>
+      <td>${e.method}</td>
+      <td>${e.notes}</td>
+    `;
+    table.appendChild(row);
+  });
+
+  // Date range header
+  if (data.entries.length > 0) {
+    const dates = data.entries.map(e => new Date(e.date));
+    const min = new Date(Math.min(...dates));
+    const max = new Date(Math.max(...dates));
+
+    document.getElementById("dateRange").textContent =
+      `Covering ${min.toLocaleDateString()} through ${max.toLocaleDateString()}`;
+  }
+}
+
+loadReport();
+</script>
+
+</body>
+</html>
 
