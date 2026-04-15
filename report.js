@@ -1,3 +1,6 @@
+// ===============================
+// Generate Two‑Week Inline Report
+// ===============================
 document.getElementById("generateReport").addEventListener("click", async () => {
   const status = document.getElementById("reportStatus");
 
@@ -48,4 +51,13 @@ document.getElementById("generateReport").addEventListener("click", async () => 
     console.error(err);
     status.textContent = "Failed to generate report.";
   }
+});
+
+
+// ==========================================
+// Open Printable TWC‑Formatted Report (NEW)
+// ==========================================
+document.getElementById("openTWCReport").addEventListener("click", () => {
+  // Use a relative path so GitHub Pages resolves correctly
+  window.open("./report.html", "_blank");
 });
