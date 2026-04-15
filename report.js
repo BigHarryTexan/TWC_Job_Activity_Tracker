@@ -1,6 +1,8 @@
 document.getElementById("generateReport").addEventListener("click", async () => {
   const status = document.getElementById("reportStatus");
-  status.textContent = "Generating report...";
+
+  // Show spinner
+  status.innerHTML = `<div class="spinner"></div> Generating report...`;
 
   try {
     const response = await fetch("https://twc-job-worker.clayharryman.workers.dev/view-raw");
@@ -39,7 +41,7 @@ document.getElementById("generateReport").addEventListener("click", async () => 
 
     html += `</table>`;
 
-    // Replace the status div with the report
+    // Replace spinner with report
     status.innerHTML = html;
 
   } catch (err) {
