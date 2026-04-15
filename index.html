@@ -59,6 +59,13 @@
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
+        
+        .report-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px; /* about 1/4" visually on screen */
+            margin-bottom: 20px;
+        }
 
     </style>
 </head>
@@ -99,8 +106,13 @@
     <!-- REPORT BUTTON SECTION -->
     <h2>Reports</h2>
 
-    <button id="generateReport">Generate Two‑Week Report</button>
+    <div class="report-buttons">
+        <button id="generateReport">Generate Two‑Week Report</button>
+        <button id="openTWCReport">Open TWC‑Formatted Report</button>
+    </div>
+
     <div id="reportStatus"></div>
+
 
     <!-- Scripts -->
     <script src="submit-v2.js"?v=3></script>
