@@ -78,10 +78,38 @@ async function loadReport() {
   const res = await fetch("https://twc-job-worker.clayharryman.workers.dev/view-raw");
   const data = await res.json();
 
+  // -------------------------------
+  // Determine 14-day reporting window
+  // -------------------------------
+  const today = new Date();
+  const day = today.getDay(); // 0=Sun, 1=Mon...
+  const mostRecentMonday = new Date(today);
+  mostRecentMonday.setDate(today.getDate() - ((day + 6) % 7));
+
+  const windowStart = new Date(mostRecentMonday);
+  windowStart.setDate(mostRecentMonday.getDate() - 13);
+
+  // -------------------------------
+  // Filter entries
+  // -------------------------------
+  let filtered = data.entries.filter(e => {
+    const d = new Date(e.date);
+
+    // Remove test entries
+    if (e.employer && e.employer.toLowerCase() === "testing") return false;
+
+    return d >= windowStart && d <= mostRecentMonday;
+  });
+
+  // Sort oldest → newest
+  filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  // -------------------------------
+  // Populate table
+  // -------------------------------
   const table = document.getElementById("reportTable");
 
-  // Fill rows
-  data.entries.forEach(e => {
+  filtered.forEach(e => {
     const row = document.createElement("tr");
     row.innerHTML = `
       <td>${e.date}</td>
@@ -93,15 +121,11 @@ async function loadReport() {
     table.appendChild(row);
   });
 
+  // -------------------------------
   // Date range header
-  if (data.entries.length > 0) {
-    const dates = data.entries.map(e => new Date(e.date));
-    const min = new Date(Math.min(...dates));
-    const max = new Date(Math.max(...dates));
-
-    document.getElementById("dateRange").textContent =
-      `Covering ${min.toLocaleDateString()} through ${max.toLocaleDateString()}`;
-  }
+  // -------------------------------
+  document.getElementById("dateRange").textContent =
+    `Covering ${windowStart.toLocaleDateString()} through ${mostRecentMonday.toLocaleDateString()}`;
 }
 
 loadReport();
@@ -109,4 +133,3 @@ loadReport();
 
 </body>
 </html>
-
