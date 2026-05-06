@@ -6,6 +6,9 @@ on:
     # Every second Monday at 9:00 AM
     - cron: "0 14 1-7,15-21 * 1"
 
+permissions:
+  contents: write
+
 jobs:
   build-report:
     runs-on: ubuntu-latest
