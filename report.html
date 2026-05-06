@@ -1,129 +1,138 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <title>TWC Work Search Report</title>
-
 <style>
   body {
     font-family: Arial, sans-serif;
     margin: 40px;
-    line-height: 1.4;
+    line-height: 1.5;
   }
-
   h1 {
     text-align: center;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
   }
-
-  .subheader {
-    text-align: center;
-    margin-bottom: 30px;
-    font-size: 14px;
+  h2 {
+    margin-top: 40px;
   }
-
-  table {
+  .twc-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
   }
-
-  th, td {
-    border: 1px solid #000;
+  .twc-table th, .twc-table td {
+    border: 1px solid #ccc;
     padding: 8px;
-    font-size: 14px;
+    text-align: left;
   }
-
-  th {
+  .twc-table th {
     background: #f0f0f0;
-  }
-
-  .cert {
-    margin-top: 40px;
-    font-size: 14px;
-  }
-
-  .sig-line {
-    margin-top: 40px;
-    border-top: 1px solid #000;
-    width: 300px;
-    padding-top: 5px;
   }
 </style>
 </head>
-
 <body>
 
-<h1>Work Search Log</h1>
-<div class="subheader" id="dateRange"></div>
+<h1>Texas Workforce Commission<br>Work Search Log</h1>
+<p><strong>Report Date:</strong> May 06, 2026</p>
+<p><strong>Period Covered:</strong> Last 14 Days</p>
 
-<table id="reportTable">
-  <tr>
-    <th>Date</th>
-    <th>Employer</th>
-    <th>Position</th>
-    <th>Method</th>
-    <th>Notes</th>
-  </tr>
+<h2>Work Search Activities</h2>
+<table class="dataframe twc-table">
+  <thead>
+    <tr style="text-align: left;">
+      <th>timestamp</th>
+      <th>date</th>
+      <th>employer</th>
+      <th>position</th>
+      <th>method</th>
+      <th>notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1777069047916</td>
+      <td>2026-04-23</td>
+      <td>VA</td>
+      <td>Interview for training</td>
+      <td>In Person</td>
+      <td>Discussed possibilities for training</td>
+    </tr>
+    <tr>
+      <td>1777069082167</td>
+      <td>2026-04-23</td>
+      <td>JobFairX</td>
+      <td>Applicant</td>
+      <td>Job Fair</td>
+      <td>Registered for online virtual job fair</td>
+    </tr>
+    <tr>
+      <td>1777069129430</td>
+      <td>2026-04-24</td>
+      <td>Bechtel</td>
+      <td>Sr. IT Operations Manager</td>
+      <td>Online Application</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <td>1777263499605</td>
+      <td>2026-04-26</td>
+      <td>MAC Pizza Mgmt</td>
+      <td>IT Tech</td>
+      <td>Email</td>
+      <td>Sent email to Oscar</td>
+    </tr>
+    <tr>
+      <td>1777403345270</td>
+      <td>2026-04-28</td>
+      <td>Black & Veatch</td>
+      <td>Technical Integrated Solutions Strategist - Oil & Gas</td>
+      <td>Online Application</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <td>1777915553080</td>
+      <td>2026-04-30</td>
+      <td>MAC Pizza Mgmt</td>
+      <td>IT Field Tech</td>
+      <td>In Person</td>
+      <td>Interviewed for position. Director said he has several good candidates right now.</td>
+    </tr>
+    <tr>
+      <td>1777684462813</td>
+      <td>2026-05-01</td>
+      <td>Stiles Machinery</td>
+      <td>Digital Support Specialist</td>
+      <td>Online Application</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <td>1777684463652</td>
+      <td>2026-05-01</td>
+      <td>Stiles Machinery</td>
+      <td>Digital Support Specialist</td>
+      <td>Online Application</td>
+      <td>nan</td>
+    </tr>
+    <tr>
+      <td>1778030857497</td>
+      <td>2026-05-05</td>
+      <td>Upwork Outcomes</td>
+      <td>Voice Actor</td>
+      <td>Online Application</td>
+      <td>Gig application for voice work. They invited me to apply!</td>
+    </tr>
+    <tr>
+      <td>1778030873835</td>
+      <td>2026-05-05</td>
+      <td>Baker Hughes</td>
+      <td>AI Solutions Consultant</td>
+      <td>Online Application</td>
+      <td>nan</td>
+    </tr>
+  </tbody>
 </table>
-
-<script>
-async function loadReport() {
-  const res = await fetch("https://twc-job-worker.clayharryman.workers.dev/view-raw");
-  const data = await res.json();
-
-  // -------------------------------
-  // Determine 14-day reporting window
-  // -------------------------------
-  const today = new Date();
-  const day = today.getDay(); // 0=Sun, 1=Mon...
-  const mostRecentMonday = new Date(today);
-  mostRecentMonday.setDate(today.getDate() - ((day + 6) % 7));
-
-  const windowStart = new Date(mostRecentMonday);
-  windowStart.setDate(mostRecentMonday.getDate() - 13);
-
-  // -------------------------------
-  // Filter entries
-  // -------------------------------
-  let filtered = data.entries.filter(e => {
-    const d = new Date(e.date);
-
-    // Remove test entries
-    if (e.employer && e.employer.toLowerCase() === "TESTING") return false;
-
-    return d >= windowStart && d <= mostRecentMonday;
-  });
-
-  // Sort oldest → newest
-  filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-  // -------------------------------
-  // Populate table
-  // -------------------------------
-  const table = document.getElementById("reportTable");
-
-  filtered.forEach(e => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${e.date}</td>
-      <td>${e.employer}</td>
-      <td>${e.position}</td>
-      <td>${e.method}</td>
-      <td>${e.notes}</td>
-    `;
-    table.appendChild(row);
-  });
-
-  // -------------------------------
-  // Date range header
-  // -------------------------------
-  document.getElementById("dateRange").textContent =
-    `Covering ${windowStart.toLocaleDateString()} through ${mostRecentMonday.toLocaleDateString()}`;
-}
-
-loadReport();
-</script>
 
 </body>
 </html>
