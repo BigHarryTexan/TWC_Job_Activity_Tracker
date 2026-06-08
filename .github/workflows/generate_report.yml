@@ -27,19 +27,19 @@ jobs:
         run: pip install python-dateutil pandas requests
 
 
-      # -------------------------------
-      # Two-week report
-      # -------------------------------
-      - name: Generate Two-Week Report
-        if: github.event.action == 'generate_twoweek_report'
-        run: python scripts/generate_report.py
+# -------------------------------
+# Two-week report
+# -------------------------------
+- name: Generate Two-Week Report
+  if: contains(github.event.action, 'two')
+  run: python scripts/generate_report.py
 
-      # -------------------------------
-      # Full-history report
-      # -------------------------------
-      - name: Generate Full Report
-        if: github.event.action == 'generate_full_report'
-        run: python scripts/generate_report.py --full
+# -------------------------------
+# Full-history report
+# -------------------------------
+- name: Generate Full Report
+  if: contains(github.event.action, 'full')
+  run: python scripts/generate_report.py --full
 
       - name: Commit reports
         run: |
