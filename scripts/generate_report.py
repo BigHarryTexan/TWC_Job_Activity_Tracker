@@ -43,7 +43,7 @@ def filter_last_two_weeks(entries):
 # Generate HTML report (14‑day)
 # ---------------------------------------------------------
 
-def generate_html(entries, output="report.html"):
+def generate_html(entries, output="reports/report.html"):
     df = pd.DataFrame(entries)
 
     if df.empty:
