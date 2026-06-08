@@ -26,7 +26,6 @@ jobs:
       - name: Install dependencies
         run: pip install python-dateutil pandas requests
 
-     
 
       # -------------------------------
       # Two-week report
