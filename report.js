@@ -4,7 +4,6 @@
 document.getElementById("generateReport").addEventListener("click", async () => {
   const status = document.getElementById("reportStatus");
 
-  // Show spinner
   status.innerHTML = `<div class="spinner"></div> Generating report...`;
 
   try {
@@ -16,7 +15,6 @@ document.getElementById("generateReport").addEventListener("click", async () => 
       return;
     }
 
-    // Build a simple HTML table
     let html = `<h3>Work Search Report (Last 14 Days)</h3>`;
     html += `<p>Total entries: ${data.count}</p>`;
     html += `<table border="1" cellpadding="6" style="border-collapse: collapse;">`;
@@ -43,8 +41,6 @@ document.getElementById("generateReport").addEventListener("click", async () => 
     }
 
     html += `</table>`;
-
-    // Replace spinner with report
     status.innerHTML = html;
 
   } catch (err) {
@@ -55,32 +51,7 @@ document.getElementById("generateReport").addEventListener("click", async () => 
 
 
 // ==========================================
-// Generate Two‑Week Printable TWC Report
-// ==========================================
-document.getElementById("generateTWCReport").addEventListener("click", async () => {
-  const status = document.getElementById("reportStatus");
-  status.innerHTML = `<div class="spinner"></div> Generating TWC report...`;
-
-  try {
-    const res = await fetch("https://twc-job-worker.clayharryman.workers.dev/generate-report", {
-      method: "POST"
-    });
-
-    if (res.ok) {
-      status.textContent = "Two‑week report generated. Opening...";
-      window.open("./reports/twc_report_latest.html", "_blank");
-    } else {
-      status.textContent = "Error generating two‑week report.";
-    }
-  } catch (err) {
-    console.error(err);
-    status.textContent = "Network error generating two‑week report.";
-  }
-});
-
-
-// ==========================================
-// Open Printable TWC‑Formatted Report (Latest)
+// Open Printable TWC‑Formatted Report
 // ==========================================
 document.getElementById("openTWCReport").addEventListener("click", () => {
   window.open("./reports/twc_report_latest.html", "_blank");
