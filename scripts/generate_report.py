@@ -2,20 +2,20 @@ import json
 import pandas as pd
 from datetime import datetime, timedelta
 from dateutil import parser
-import sys   # <-- ADD THIS
+import sys
+import requests
 
 # ---------------------------------------------------------
-# Load merged data
+# Load merged data from Worker (NOT local file)
 # ---------------------------------------------------------
 
-def load_merged(path="merged.json"):
+def load_merged():
     try:
-        with open(path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            if not isinstance(data, list):
-                return []
-            return data
-    except Exception:
+        resp = requests.get("https://twc-job-worker.clayharryman.workers.dev/view-raw")
+        payload = resp.json()
+        return payload.get("entries", [])
+    except Exception as e:
+        print("Error fetching merged data:", e)
         return []
 
 
@@ -192,17 +192,15 @@ def generate_full_html(entries, output="reports/full_report.html"):
 # ---------------------------------------------------------
 
 def main():
-    print("Loading merged.json...")
+    print("Fetching merged data from Worker...")
     merged = load_merged()
 
-    # ⭐ NEW: detect --full flag
     if "--full" in sys.argv:
         print("Generating FULL report...")
         generate_full_html(merged)
         print("Done.")
         return
 
-    # Default: 14‑day report
     print("Filtering last 14 days...")
     filtered = filter_last_two_weeks(merged)
 
