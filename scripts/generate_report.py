@@ -111,6 +111,75 @@ def generate_html(entries, output="report.html"):
 
     print(f"Report written to {output}")
 
+def generate_full_html(entries, output="full_report.html"):
+    df = pd.DataFrame(entries)
+
+    if df.empty:
+        html_table = "<p>No entries found.</p>"
+    else:
+        df = df.sort_values("date")
+        html_table = df.to_html(
+            index=False,
+            escape=False,
+            justify="left",
+            border=0,
+            classes="twc-table"
+        )
+
+    today = datetime.now().strftime("%B %d, %Y")
+
+    html = f"""
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>TWC Work Search Report – Full History</title>
+<style>
+  body {{
+    font-family: Arial, sans-serif;
+    margin: 40px;
+    line-height: 1.5;
+  }}
+  h1 {{
+    text-align: center;
+    margin-bottom: 10px;
+  }}
+  h2 {{
+    margin-top: 40px;
+  }}
+  .twc-table {{
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }}
+  .twc-table th, .twc-table td {{
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+  }}
+  .twc-table th {{
+    background: #f0f0f0;
+  }}
+</style>
+</head>
+<body>
+
+<h1>Texas Workforce Commission<br>Work Search Log</h1>
+<p><strong>Report Date:</strong> {today}</p>
+<p><strong>Period Covered:</strong> Full History</p>
+
+<h2>All Work Search Activities</h2>
+{html_table}
+
+</body>
+</html>
+"""
+
+    with open(output, "w", encoding="utf-8") as f:
+        f.write(html)
+
+    print(f"Full report written to {output}")
+
 
 # ---------------------------------------------------------
 # Main
