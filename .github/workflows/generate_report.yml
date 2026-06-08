@@ -27,13 +27,13 @@ jobs:
         run: pip install python-dateutil pandas
 
       # -------------------------------------------------------
-      # ⭐ NEW: Fetch merged-data from Cloudflare KV
+      # ⭐ Fetch merged.json from Cloudflare KV
       # -------------------------------------------------------
       - name: Fetch merged.json from Cloudflare KV
         run: |
           curl -X GET \
             -H "Authorization: Bearer ${{ secrets.CF_API_TOKEN }}" \
-            "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CF_ACCOUNT_ID }}/storage/kv/namespaces/${{ secrets.CF_NAMESPACE_ID }}/values/merged-data" \
+            "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CF_ACCOUNT_ID }}/storage/kv/namespaces/${{ secrets.CF_NAMESPACE_ID }}/values/merged.json" \
             -o merged.json
 
       # -------------------------------
@@ -49,6 +49,12 @@ jobs:
       - name: Generate Full Report
         if: github.event.action == 'generate_full_report'
         run: python scripts/generate_report.py --full
+
+      # -------------------------------------------------------
+      # ⭐ Create stable "latest" TWC report filename
+      # -------------------------------------------------------
+      - name: Copy latest TWC report
+        run: cp reports/twc_report_*.html reports/twc_report_latest.html
 
       - name: Commit reports
         run: |
