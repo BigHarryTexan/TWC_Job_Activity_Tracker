@@ -61,3 +61,24 @@ document.getElementById("openTWCReport").addEventListener("click", () => {
   // Use a relative path so GitHub Pages resolves correctly
   window.open("./report.html", "_blank");
 });
+document.getElementById("generateFullReport").addEventListener("click", async () => {
+    const status = document.getElementById("reportStatus");
+    status.innerHTML = `<div class="spinner"></div> Generating full report...`;
+
+    try {
+        const res = await fetch("https://twc-job-worker.clayharryman.workers.dev/generate-full-report", {
+            method: "POST"
+        });
+
+        if (res.ok) {
+            status.textContent = "Full report generated. Opening...";
+            window.open("./full_report.html", "_blank");
+        } else {
+            status.textContent = "Error generating full report.";
+        }
+    } catch (err) {
+        console.error(err);
+        status.textContent = "Network error generating full report.";
+    }
+});
+
