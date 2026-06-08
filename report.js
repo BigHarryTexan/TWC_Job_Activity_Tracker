@@ -59,7 +59,7 @@ document.getElementById("generateReport").addEventListener("click", async () => 
 // ==========================================
 document.getElementById("openTWCReport").addEventListener("click", () => {
   // Use a relative path so GitHub Pages resolves correctly
-  window.open("./report.html", "_blank");
+  window.open("./reports/report.html", "_blank");
 });
 document.getElementById("generateFullReport").addEventListener("click", async () => {
     const status = document.getElementById("reportStatus");
@@ -72,7 +72,7 @@ document.getElementById("generateFullReport").addEventListener("click", async ()
 
         if (res.ok) {
             status.textContent = "Full report generated. Opening...";
-            window.open("./full_report.html", "_blank");
+            window.open("./reports/full_report.html", "_blank");
         } else {
             status.textContent = "Error generating full report.";
         }
