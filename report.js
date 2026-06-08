@@ -55,30 +55,58 @@ document.getElementById("generateReport").addEventListener("click", async () => 
 
 
 // ==========================================
-// Open Printable TWC‑Formatted Report (NEW)
+// Generate Two‑Week Printable TWC Report
+// ==========================================
+document.getElementById("generateTWCReport").addEventListener("click", async () => {
+  const status = document.getElementById("reportStatus");
+  status.innerHTML = `<div class="spinner"></div> Generating TWC report...`;
+
+  try {
+    const res = await fetch("https://twc-job-worker.clayharryman.workers.dev/generate-report", {
+      method: "POST"
+    });
+
+    if (res.ok) {
+      status.textContent = "Two‑week report generated. Opening...";
+      window.open("./reports/twc_report_latest.html", "_blank");
+    } else {
+      status.textContent = "Error generating two‑week report.";
+    }
+  } catch (err) {
+    console.error(err);
+    status.textContent = "Network error generating two‑week report.";
+  }
+});
+
+
+// ==========================================
+// Open Printable TWC‑Formatted Report (Latest)
 // ==========================================
 document.getElementById("openTWCReport").addEventListener("click", () => {
-  // Use a relative path so GitHub Pages resolves correctly
-  window.open("./reports/report.html", "_blank");
+  window.open("./reports/twc_report_latest.html", "_blank");
 });
+
+
+// ==========================================
+// Generate Full Report
+// ==========================================
 document.getElementById("generateFullReport").addEventListener("click", async () => {
-    const status = document.getElementById("reportStatus");
-    status.innerHTML = `<div class="spinner"></div> Generating full report...`;
+  const status = document.getElementById("reportStatus");
+  status.innerHTML = `<div class="spinner"></div> Generating full report...`;
 
-    try {
-        const res = await fetch("https://twc-job-worker.clayharryman.workers.dev/generate-full-report", {
-            method: "POST"
-        });
+  try {
+    const res = await fetch("https://twc-job-worker.clayharryman.workers.dev/generate-full-report", {
+      method: "POST"
+    });
 
-        if (res.ok) {
-            status.textContent = "Full report generated. Opening...";
-            window.open("./reports/full_report.html", "_blank");
-        } else {
-            status.textContent = "Error generating full report.";
-        }
-    } catch (err) {
-        console.error(err);
-        status.textContent = "Network error generating full report.";
+    if (res.ok) {
+      status.textContent = "Full report generated. Opening...";
+      window.open("./reports/full_report.html", "_blank");
+    } else {
+      status.textContent = "Error generating full report.";
     }
+  } catch (err) {
+    console.error(err);
+    status.textContent = "Network error generating full report.";
+  }
 });
-
