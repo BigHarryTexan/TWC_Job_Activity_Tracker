@@ -1,11 +1,11 @@
-name: Generate Two-Week TWC Report
+name: Generate TWC Reports
 
 on:
   schedule:
     - cron: "0 8 */14 * 1"  # Every second Monday at 08:00 UTC
   workflow_dispatch:
   repository_dispatch:
-    types: [generate_twoweek_report]
+    types: [generate_twoweek_report, generate_full_report]
 
 permissions:
   contents: write
@@ -24,15 +24,26 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install python-dateutil
+        run: pip install python-dateutil pandas
 
-      - name: Generate report
+      # -------------------------------
+      # Two-week report
+      # -------------------------------
+      - name: Generate Two-Week Report
+        if: github.event.action == 'generate_twoweek_report'
         run: python scripts/generate_report.py
 
-      - name: Commit report
+      # -------------------------------
+      # Full-history report
+      # -------------------------------
+      - name: Generate Full Report
+        if: github.event.action == 'generate_full_report'
+        run: python scripts/generate_report.py --full
+
+      - name: Commit reports
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add reports/*.html
-          git commit -m "Auto-generated TWC report" || echo "No changes"
+          git commit -m "Auto-generated TWC reports" || echo "No changes"
           git push
