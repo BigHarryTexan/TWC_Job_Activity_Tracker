@@ -117,7 +117,7 @@ def generate_html(entries, output="report.html"):
 # Generate FULL HISTORY report
 # ---------------------------------------------------------
 
-def generate_full_html(entries, output="full_report.html"):
+def generate_full_html(entries, output="reports/full_report.html"):
     df = pd.DataFrame(entries)
 
     if df.empty:
