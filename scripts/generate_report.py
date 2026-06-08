@@ -2,6 +2,7 @@ import json
 import pandas as pd
 from datetime import datetime, timedelta
 from dateutil import parser
+import sys   # <-- ADD THIS
 
 # ---------------------------------------------------------
 # Load merged data
@@ -39,7 +40,7 @@ def filter_last_two_weeks(entries):
 
 
 # ---------------------------------------------------------
-# Generate HTML report
+# Generate HTML report (14‑day)
 # ---------------------------------------------------------
 
 def generate_html(entries, output="report.html"):
@@ -110,6 +111,11 @@ def generate_html(entries, output="report.html"):
         f.write(html)
 
     print(f"Report written to {output}")
+
+
+# ---------------------------------------------------------
+# Generate FULL HISTORY report
+# ---------------------------------------------------------
 
 def generate_full_html(entries, output="full_report.html"):
     df = pd.DataFrame(entries)
@@ -189,6 +195,14 @@ def main():
     print("Loading merged.json...")
     merged = load_merged()
 
+    # ⭐ NEW: detect --full flag
+    if "--full" in sys.argv:
+        print("Generating FULL report...")
+        generate_full_html(merged)
+        print("Done.")
+        return
+
+    # Default: 14‑day report
     print("Filtering last 14 days...")
     filtered = filter_last_two_weeks(merged)
 
