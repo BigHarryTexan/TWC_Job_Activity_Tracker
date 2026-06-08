@@ -41,12 +41,6 @@ jobs:
         if: github.event.action == 'generate_full_report'
         run: python scripts/generate_report.py --full
 
-      # -------------------------------------------------------
-      # ⭐ Create stable "latest" TWC report filename
-      # -------------------------------------------------------
-      - name: Copy latest TWC report
-        run: cp reports/twc_report_*.html reports/twc_report_latest.html
-
       - name: Commit reports
         run: |
           git config user.name "github-actions"
