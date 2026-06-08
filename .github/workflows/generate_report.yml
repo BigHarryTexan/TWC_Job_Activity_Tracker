@@ -29,7 +29,7 @@ jobs:
       # -------------------------------------------------------
       # ⭐ NEW: Fetch merged-data from Cloudflare KV
       # -------------------------------------------------------
-      - name: Fetch merged-data from Cloudflare KV
+      - name: Fetch merged.json from Cloudflare KV
         run: |
           curl -X GET \
             -H "Authorization: Bearer ${{ secrets.CF_API_TOKEN }}" \
