@@ -24,17 +24,9 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install python-dateutil pandas
+        run: pip install python-dateutil pandas requests
 
-      # -------------------------------------------------------
-      # ⭐ Fetch merged.json from Cloudflare KV
-      # -------------------------------------------------------
-      - name: Fetch merged.json from Cloudflare KV
-        run: |
-          curl -X GET \
-            -H "Authorization: Bearer ${{ secrets.CF_API_TOKEN }}" \
-            "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CF_ACCOUNT_ID }}/storage/kv/namespaces/${{ secrets.CF_NAMESPACE_ID }}/values/merged.json" \
-            -o merged.json
+     
 
       # -------------------------------
       # Two-week report
