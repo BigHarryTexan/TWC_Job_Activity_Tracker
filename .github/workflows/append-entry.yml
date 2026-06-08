@@ -14,6 +14,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: true   # <-- REQUIRED for git push
+          fetch-depth: 0
 
       - name: Parse incoming payload
         id: parse
@@ -49,9 +52,10 @@ jobs:
 
       - name: Commit changes
         run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+
           git add data/work_search.json data/work_search.csv
           git commit -m "Add work search entry ${{ steps.fields.outputs.ts }}" || echo "No changes to commit"
-          git push
 
+          git push
