@@ -126,5 +126,13 @@
     "notes": "",
     "position": "Attendee",
     "timestamp": 1781125831178
+  },
+  {
+    "date": "2026-06-10",
+    "employer": "CapGemini",
+    "method": "Email",
+    "notes": "Sent directly to Ananth Srinivasan, with whom I worked at Baker Hughes.",
+    "position": "Division Delivery Lead",
+    "timestamp": 1781125857821
   }
 ]
